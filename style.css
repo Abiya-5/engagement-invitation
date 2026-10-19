@@ -1,0 +1,951 @@
+:root {
+    --sage: #7b8059;
+    --sage-dark: #535a3c;
+    --sage-light: #c4c6a7;
+    --ink: #343b2b;
+    --gold: #a58b54;
+    --paper: #f7f1e2;
+    --cream: #f8f3e7;
+    --line: rgba(128, 112, 72, .48)
+}
+
+* {
+    box-sizing: border-box
+}
+
+html {
+    scroll-behavior: smooth
+}
+
+body {
+    margin: 0;
+    color: var(--ink);
+    background: #d9d8c2;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px
+}
+
+.grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    opacity: .12;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E")
+}
+
+.site-shell {
+    width: min(100%, 620px);
+    margin: 0 auto;
+    background: var(--paper);
+    box-shadow: 0 0 70px #3332;
+    overflow: hidden
+}
+
+.panel {
+    min-height: 100svh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 54px 30px 48px;
+    isolation: isolate;
+    overflow: hidden
+}
+
+.status {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    top: 12px;
+    display: flex;
+    justify-content: space-between;
+    font: 600 11px Arial, sans-serif;
+    color: #1e241b;
+    z-index: 5
+}
+
+.floral-bg {
+    background: radial-gradient(ellipse at 13% 14%, #fff9dfbb 0 5%, transparent 28%), radial-gradient(ellipse at 88% 18%, #fff8d7bb 0 7%, transparent 30%), radial-gradient(ellipse at 8% 84%, #e8e4c4 0 5%, transparent 29%), radial-gradient(ellipse at 95% 87%, #eee6c6 0 6%, transparent 28%), radial-gradient(ellipse at 50% 45%, #f8f3e4 0, #d7d7bc 100%)
+}
+
+.floral-bg:before,
+.floral-bg:after,
+.floral-corners:before,
+.floral-corners:after {
+    content: '✿  ❧  ✾';
+    position: absolute;
+    z-index: -1;
+    color: #89916b;
+    opacity: .65;
+    font-size: clamp(40px, 9vw, 74px);
+    letter-spacing: -18px;
+    filter: blur(.2px);
+    text-shadow: 0 0 15px #fff7
+}
+
+.floral-bg:before {
+    top: 0;
+    left: -12px;
+    transform: rotate(35deg)
+}
+
+.floral-bg:after {
+    bottom: 0;
+    right: -12px;
+    transform: rotate(215deg)
+}
+
+.paper {
+    background-color: var(--paper);
+    background-image: radial-gradient(ellipse at top left, #e1dfc7 0, transparent 32%), radial-gradient(ellipse at bottom right, #dedfc7 0, transparent 32%), repeating-linear-gradient(0deg, #88744a05 0 1px, transparent 1px 5px)
+}
+
+.floral-corners:before {
+    top: 0;
+    left: -15px;
+    transform: rotate(35deg)
+}
+
+.floral-corners:after {
+    bottom: 0;
+    right: -15px;
+    transform: rotate(215deg)
+}
+
+.spaced {
+    font-family: Montserrat, sans-serif;
+    letter-spacing: .29em;
+    font-size: 10px;
+    font-weight: 400;
+    margin: 12px 0
+}
+
+.tiny {
+    font-size: 9px;
+    letter-spacing: .2em
+}
+
+.script {
+    font-family: 'Great Vibes', cursive;
+    font-weight: 400;
+    color: #4b4e32
+}
+
+.monogram {
+    width: 170px;
+    height: 170px;
+    margin: 0 auto 12px
+}
+
+.monogram svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible
+}
+
+.initial {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 43px;
+    fill: #626a45;
+    font-style: italic
+}
+
+.amp {
+    font-family: 'Great Vibes', cursive;
+    font-size: 26px;
+    fill: #9d8552
+}
+
+.seal {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    margin: 18px auto 12px;
+    border: 4px double #b4b18b;
+    background: radial-gradient(circle at 35% 28%, #9ba17a, #5c6441 65%, #343b28);
+    color: #e9d6a3;
+    font-size: 28px;
+    box-shadow: 0 7px 15px #242b2044, inset 0 0 0 3px #414a30;
+    cursor: pointer;
+    transition: transform .3s
+}
+
+.seal:hover {
+    transform: scale(1.08) rotate(-8deg)
+}
+
+.open-label {
+    font-size: 28px;
+    margin: 5px 0
+}
+
+.down {
+    border: 0;
+    background: transparent;
+    color: #343b2b;
+    font-size: 30px;
+    cursor: pointer
+}
+
+.envelope-panel {
+    background: radial-gradient(ellipse at center, #e8d8bd, #c6c4a6 70%, #b0b398)
+}
+
+.envelope-scene {
+    position: relative;
+    width: min(100%, 410px);
+    height: 400px;
+    perspective: 1100px;
+    margin-top: 10px
+}
+
+.envelope-card {
+    position: absolute;
+    width: 72%;
+    height: 80%;
+    top: 0;
+    left: 14%;
+    padding: 30px 14px 20px;
+    background: #f8f0dc;
+    box-shadow: 0 5px 20px #3c382b42;
+    transition: transform 1.2s cubic-bezier(.2, .8, .2, 1), top 1.2s;
+    z-index: 1
+}
+
+.envelope-card .script {
+    font-size: 35px;
+    margin: 20px 0
+}
+
+.envelope-card p {
+    font-size: 12px
+}
+
+.envelope {
+    position: absolute;
+    inset: 26% 0 0;
+    background: #858967;
+    box-shadow: 0 15px 30px #343b2b55;
+    overflow: visible
+}
+
+.env-bottom {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #929575, #777d57);
+    clip-path: polygon(0 100%, 0 0, 50% 56%, 100% 0, 100% 100%);
+    z-index: 3
+}
+
+.env-left {
+    position: absolute;
+    inset: 0;
+    background: #9b9c7a;
+    clip-path: polygon(0 0, 52% 53%, 0 100%);
+    z-index: 2
+}
+
+.env-right {
+    position: absolute;
+    inset: 0;
+    background: #747a55;
+    clip-path: polygon(100% 0, 48% 53%, 100% 100%);
+    z-index: 2
+}
+
+.env-flap {
+    position: absolute;
+    inset: 0;
+    background: #a9a98a;
+    clip-path: polygon(0 0, 100% 0, 50% 61%);
+    transform-origin: top;
+    z-index: 4;
+    transition: transform .8s;
+    filter: drop-shadow(0 3px 3px #3332)
+}
+
+.wax {
+    position: absolute;
+    z-index: 5;
+    top: 42%;
+    left: calc(50% - 34px);
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 30% 25%, #c48f5e, #82502d 60%, #60371e);
+    border: 4px double #dfb988;
+    box-shadow: 0 3px 10px #3335;
+    color: #e9d1a0;
+    font-size: 27px;
+    cursor: pointer;
+    transition: transform .4s
+}
+
+.envelope-scene.open .env-flap {
+    transform: rotateX(180deg);
+    z-index: 0
+}
+
+.envelope-scene.open .envelope-card {
+    top: -12%;
+    transform: translateY(-45px) scale(1.04);
+    z-index: 6
+}
+
+.envelope-scene.open .wax {
+    opacity: 0;
+    transform: scale(.3)
+}
+
+.envelope-hint {
+    font-size: 13px;
+    font-style: italic
+}
+
+.mini-wreath {
+    font-size: 33px;
+    color: #626a45;
+    font-style: italic;
+    margin: 8px auto 14px
+}
+
+.mini-wreath small {
+    font-family: 'Great Vibes', cursive;
+    font-size: 20px;
+    color: #a58b54
+}
+
+.invite {
+    background-image: radial-gradient(ellipse at top left, #e6e2cb, transparent 30%), radial-gradient(ellipse at bottom right, #dedfc6, transparent 30%)
+}
+
+.paper-inner {
+    border: 1px solid #c6b58a;
+    outline: 1px solid #c6b58a;
+    outline-offset: 5px;
+    padding: 28px 14px 24px;
+    width: min(100%, 390px);
+    min-height: 72vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #faf5e8d9;
+    box-shadow: 0 12px 35px #5e57351c
+}
+
+.couple {
+    font-size: clamp(43px, 9vw, 61px);
+    margin: 15px 0 10px
+}
+
+.hairline {
+    height: 1px;
+    width: 58%;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 18px auto
+}
+
+.date-line {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 3px 0
+}
+
+.date-line span {
+    font-size: 10px;
+    letter-spacing: .13em
+}
+
+.date-line strong {
+    font-size: 43px;
+    font-weight: 400;
+    border-left: 1px solid var(--gold);
+    border-right: 1px solid var(--gold);
+    padding: 0 14px
+}
+
+.time-line {
+    font-size: 11px;
+    letter-spacing: .15em
+}
+
+.venue-script {
+    font-size: 28px;
+    margin: 15px 0 0
+}
+
+.note {
+    font-size: 25px;
+    margin: 25px 0 10px
+}
+
+.pill-link {
+    border: 0;
+    border-radius: 30px;
+    padding: 12px 23px;
+    background: #f2ead7;
+    color: #555a3c;
+    text-decoration: none;
+    font: 11px Montserrat, sans-serif;
+    letter-spacing: .04em;
+    display: inline-block;
+    cursor: pointer;
+    margin-top: 22px;
+    box-shadow: 0 4px 12px #3331
+}
+
+.dark {
+    background: #69714c;
+    color: #fff9e8
+}
+
+.countdown {
+    background: radial-gradient(ellipse at center, #e8e5cc 0, #d1d4b5 100%)
+}
+
+.section-script {
+    font-size: clamp(38px, 8vw, 52px);
+    margin: 0 0 10px;
+    color: #454a30
+}
+
+.clock-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+    margin: 28px 0
+}
+
+.clock {
+    aspect-ratio: 1/1;
+    border: 1px solid #a69a6c;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #f5f0dd6b;
+    box-shadow: inset 0 0 0 4px #d7d2b7
+}
+
+.clock:before {
+    content: '❧';
+    position: absolute;
+    top: -10px;
+    font-size: 16px;
+    color: #78805b
+}
+
+.clock strong {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 400
+}
+
+.clock span {
+    font-size: 10px
+}
+
+.quote {
+    font-size: 24px;
+    line-height: 1.45;
+    margin: 18px 0
+}
+
+.ornament {
+    color: #9b8550;
+    letter-spacing: .25em;
+    margin: 15px 0
+}
+
+.events,
+.venue,
+.rsvp,
+.journey {
+    justify-content: flex-start
+}
+
+.event-list {
+    width: 100%;
+    text-align: left;
+    margin: 20px 0 8px
+}
+
+.event {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #b6a77b77
+}
+
+.event-icon {
+    border: 1px solid #b5a575;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    color: #85774c
+}
+
+.event h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 4px
+}
+
+.event p {
+    font-size: 13px;
+    margin: 2px 0
+}
+
+.event p b {
+    color: #9d8552
+}
+
+.venue-photo {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 5px solid #f8f0dc;
+    box-shadow: 0 6px 20px #3332;
+    margin: 14px 0
+}
+
+.venue h3 {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 8px 0 0
+}
+
+.venue p {
+    margin: 4px
+}
+
+.small-quote {
+    font-size: 19px
+}
+
+.subheading {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 24px
+}
+
+form {
+    width: 100%;
+    max-width: 420px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px
+}
+
+label {
+    font-size: 13px;
+    margin-top: 6px
+}
+
+input,
+select {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #c8bea2;
+    border-radius: 10px;
+    background: #fffaf0b8;
+    padding: 0 14px;
+    color: #373b2c;
+    font: 14px 'Cormorant Garamond', serif;
+    outline-color: #858b61
+}
+
+input::placeholder {
+    color: #8c8875
+}
+
+.submit {
+    width: 100%;
+    font-family: Montserrat, sans-serif;
+    font-size: 12px;
+    margin-top: 12px
+}
+
+.form-note {
+    font-size: 11px;
+    color: #797761;
+    text-align: center
+}
+
+.thanks {
+    background: radial-gradient(ellipse at center, #f8f1dd, #d5d6ba)
+}
+
+.thank-frame {
+    width: 100%;
+    min-height: 65vh;
+    border: 1px solid #b7a574;
+    border-radius: 48% 48% 10px 10px / 23% 23% 10px 10px;
+    padding: 55px 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fbf7e8a6
+}
+
+.check {
+    border: 1px solid #a38e58;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    display: grid;
+    place-items: center;
+    color: #847849;
+    font-size: 28px
+}
+
+.thank-frame p {
+    font-size: 14px;
+    line-height: 1.7
+}
+
+.journey>p {
+    margin: 0 0 16px
+}
+
+.photo-stack {
+    width: 85%;
+    position: relative;
+    transform: rotate(-3deg);
+    padding: 10px;
+    background: #fff8e9;
+    box-shadow: 0 8px 25px #3333;
+    margin: 20px 0
+}
+
+.photo-stack img {
+    display: block;
+    width: 100%;
+    height: 330px;
+    object-fit: cover
+}
+
+.photo-stack span {
+    position: absolute;
+    bottom: -23px;
+    right: -8px;
+    font-size: 40px;
+    color: #7d855c
+}
+
+.dots {
+    color: #9e8d5d;
+    margin-top: 15px
+}
+
+.closing .hairline {
+    margin: 20px auto
+}
+
+.closing .note {
+    font-size: 24px
+}
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 22px;
+    background: #69714c;
+    color: #fff9e8;
+    font: 11px Montserrat, sans-serif
+}
+
+footer a {
+    color: inherit
+}
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translate(-50%, 30px);
+    opacity: 0;
+    background: #535a3c;
+    color: #fff9e8;
+    padding: 12px 18px;
+    border-radius: 24px;
+    font: 12px Montserrat, sans-serif;
+    z-index: 20;
+    transition: .3s;
+    max-width: 90%;
+    text-align: center
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%, 0)
+}
+
+@media(min-width:700px) {
+    .site-shell {
+        margin: 24px auto;
+        border-radius: 14px
+    }
+
+    .panel {
+        min-height: 850px;
+        padding-left: 50px;
+        padding-right: 50px
+    }
+
+    .opening,
+    .countdown,
+    .thanks,
+    .closing {
+        min-height: 850px
+    }
+
+    .envelope-scene {
+        height: 460px
+    }
+
+    .paper-inner {
+        min-height: 680px
+    }
+}
+
+@media(max-width:360px) {
+    .panel {
+        padding-left: 20px;
+        padding-right: 20px
+    }
+
+    .clock-grid {
+        gap: 4px
+    }
+
+    .clock span {
+        font-size: 8px
+    }
+
+    .event {
+        gap: 9px
+    }
+
+    .event-icon {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px
+    }
+}
+
+/* =====================================
+   A WORD OF FAITH
+===================================== */
+
+#faith {
+  background: #F7F3E9;
+  color: #454735;
+  padding: 100px 25px;
+  text-align: center;
+}
+
+#faith .faith-flower {
+  color: #777A60;
+  font-size: 42px;
+  margin-bottom: 30px;
+}
+
+#faith .section-label {
+  color: #777A60;
+  letter-spacing: 4px;
+}
+
+#faith .faith-quote {
+  color: #454735;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(30px, 5vw, 48px);
+  font-style: italic;
+  line-height: 1.3;
+}
+
+#faith .faith-reference {
+  color: #89866F;
+  letter-spacing: 3px;
+}
+
+#faith .faith-divider span {
+  background: #C8BDA4;
+}
+
+#faith .faith-divider b {
+  color: #777A60;
+}
+
+#faith .faith-message {
+  color: #555541;
+  font-size: 24px;
+  line-height: 1.7;
+  max-width: 650px;
+  margin: 45px auto 0;
+}
+
+
+/* =====================================
+   OUR FAMILIES
+===================================== */
+
+#families {
+  background: linear-gradient(
+    180deg,
+    #E9E3D4 0%,
+    #F7F3E9 100%
+  );
+  color: #454735;
+  padding: 90px 25px 110px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+#families .families-heading {
+  color: #454735;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(34px, 5vw, 46px);
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 25px auto 50px;
+}
+
+#families .section-label {
+  color: #777A60;
+  letter-spacing: 4px;
+}
+
+/* Two cards with heart in the middle */
+#families .family-cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 65px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+#families .family-card {
+  background: #F9F6EE;
+  border: 1px solid #C9BEA6;
+  padding: 45px 15px 35px;
+  min-width: 0;
+  min-height: 590px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#families .family-flower {
+  color: #85866A;
+  font-size: 38px;
+  margin-bottom: 28px;
+}
+
+#families .family-role {
+  color: #777A60;
+  font-size: 14px;
+  letter-spacing: 2.5px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+#families .family-name {
+  color: #454735;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.45;
+  margin-bottom: 20px;
+}
+
+#families .family-description {
+  color: #89836F;
+  font-size: 20px;
+  margin-bottom: 25px;
+}
+
+#families .parent-names {
+  color: #555541;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 24px;
+  line-height: 1.8;
+}
+
+#families .family-heart {
+  color: #85866A;
+  font-size: 38px;
+  display: block;
+  text-align: center;
+}
+
+/* Small-screen layout */
+@media (max-width: 600px) {
+  #faith {
+    padding: 75px 22px;
+  }
+
+  #faith .faith-message {
+    font-size: 21px;
+  }
+
+  #families {
+    padding: 75px 16px 90px;
+  }
+
+  #families .family-cards {
+    grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  #families .family-card {
+    min-height: 570px;
+    padding: 32px 7px;
+  }
+
+  #families .family-flower {
+    font-size: 31px;
+  }
+
+  #families .family-role {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  #families .family-name {
+    font-size: 23px;
+  }
+
+  #families .family-description {
+    font-size: 17px;
+  }
+
+  #families .parent-names {
+    font-size: 18px;
+  }
+
+  #families .family-heart {
+    font-size: 27px;
+  }
+}
