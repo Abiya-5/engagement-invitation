@@ -1,15 +1,60 @@
-/* =====================================
-   WEDDING INVITATION - MAIN JAVASCRIPT
-===================================== */
+/* =========================================
+   LIJEESHA & SHON — WEDDING ALBUM
+   Envelope • Page navigation • Music
+   Countdown • RSVP • Mobile swipe
+========================================= */
 
-const scene = document.getElementById("envelopeScene");
-const toast = document.getElementById("toast");
+const $ = (selector, parent = document) =>
+  parent.querySelector(selector);
+
+const $$ = (selector, parent = document) =>
+  [...parent.querySelectorAll(selector)];
+
+const scene = $("#envelopeScene");
+const envelopePanel = $("#envelopePanel");
+const toast = $("#toast");
 
 let openingInProgress = false;
+let hasOpenedInvitation = false;
+let activePage = 0;
+let navigationLocked = false;
+let navigationUnlockTimer;
 
-/* =====================================
-   NOTIFICATION MESSAGE
-===================================== */
+/* =========================================
+   PAGE SETUP
+========================================= */
+
+const pageIds = [
+  "top",
+  "envelopePanel",
+  "faith",
+  "families",
+  "invitation",
+  "countdown",
+  "venue",
+  "rsvp",
+  "thanks"
+];
+
+const pages = pageIds
+  .map(id => document.getElementById(id))
+  .filter(Boolean);
+
+// Add the closing page, which has no ID in your HTML.
+const closingPage = $(".closing");
+
+if (closingPage) {
+  pages.push(closingPage);
+}
+
+pages.forEach((page, index) => {
+  page.classList.add("album-page");
+  page.dataset.pageIndex = index;
+});
+
+/* =========================================
+   TOAST NOTIFICATION
+========================================= */
 
 function notify(message) {
   if (!toast) return;
@@ -24,91 +69,252 @@ function notify(message) {
   }, 3200);
 }
 
-/* =====================================
+/* =========================================
+   MUSIC
+   Mobile browsers may require a user tap.
+========================================= */
+
+const music = $("#weddingMusic");
+const musicButton = $("#musicToggle");
+
+async function startMusic() {
+  if (!music) return;
+
+  try {
+    await music.play();
+
+    if (musicButton) {
+      musicButton.textContent = "♫ Pause Music";
+      musicButton.classList.add("playing");
+    }
+  } catch (error) {
+    if (musicButton) {
+      musicButton.textContent = "♫ Tap to Play";
+    }
+  }
+}
+
+function pauseMusic() {
+  if (!music) return;
+
+  music.pause();
+
+  if (musicButton) {
+    musicButton.textContent = "♫ Play Music";
+    musicButton.classList.remove("playing");
+  }
+}
+
+if (musicButton && music) {
+  musicButton.addEventListener("click", () => {
+    if (music.paused) {
+      startMusic();
+    } else {
+      pauseMusic();
+    }
+  });
+
+  music.addEventListener("play", () => {
+    musicButton.textContent = "♫ Pause Music";
+    musicButton.classList.add("playing");
+  });
+
+  music.addEventListener("pause", () => {
+    musicButton.textContent = "♫ Play Music";
+    musicButton.classList.remove("playing");
+  });
+
+  music.addEventListener("error", () => {
+    notify("Music could not be loaded. Please check engagement.mpeg.");
+  });
+}
+
+/* =========================================
+   ALBUM PAGE NAVIGATION
+========================================= */
+
+const navigation = document.createElement("nav");
+
+navigation.className = "album-navigation";
+navigation.setAttribute("aria-label", "Wedding album navigation");
+
+navigation.innerHTML = `
+  <button type="button" class="album-prev"
+          aria-label="Previous page" title="Previous page">
+    ‹
+  </button>
+
+  <span class="album-page-count" aria-live="polite">
+    01 / ${String(pages.length).padStart(2, "0")}
+  </span>
+
+  <button type="button" class="album-next"
+          aria-label="Next page" title="Next page">
+    ›
+  </button>
+`;
+
+document.body.appendChild(navigation);
+
+const previousButton = $(".album-prev", navigation);
+const nextButton = $(".album-next", navigation);
+const pageCount = $(".album-page-count", navigation);
+
+function updateNavigation(index) {
+  activePage = Math.max(0, Math.min(index, pages.length - 1));
+
+  if (pageCount) {
+    pageCount.textContent =
+      `${String(activePage + 1).padStart(2, "0")} / ` +
+      `${String(pages.length).padStart(2, "0")}`;
+  }
+
+  if (previousButton) {
+    previousButton.disabled = activePage === 0;
+  }
+
+  if (nextButton) {
+    nextButton.disabled = activePage === pages.length - 1;
+  }
+}
+
+function goToPage(index, options = {}) {
+  const { force = false } = options;
+
+  if (!force && navigationLocked) return;
+
+  const safeIndex = Math.max(0, Math.min(index, pages.length - 1));
+  const destination = pages[safeIndex];
+
+  if (!destination) return;
+
+  navigationLocked = true;
+  clearTimeout(navigationUnlockTimer);
+
+  updateNavigation(safeIndex);
+
+  destination.scrollIntoView({
+    behavior: window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches ? "auto" : "smooth",
+    block: "start"
+  });
+
+  navigationUnlockTimer = setTimeout(() => {
+    navigationLocked = false;
+  }, 1000);
+}
+
+function nextPage() {
+  goToPage(activePage + 1);
+}
+
+function previousPage() {
+  goToPage(activePage - 1);
+}
+
+previousButton.addEventListener("click", previousPage);
+nextButton.addEventListener("click", nextPage);
+
+/* Update the page number during manual scrolling. */
+if ("IntersectionObserver" in window) {
+  const pageObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+
+      const index = Number(entry.target.dataset.pageIndex);
+
+      updateNavigation(index);
+      entry.target.classList.add("page-visible");
+    });
+  }, {
+    threshold: 0.45
+  });
+
+  pages.forEach(page => pageObserver.observe(page));
+} else {
+  pages.forEach(page => page.classList.add("page-visible"));
+}
+
+/* =========================================
    OPEN ENVELOPE
-   THEN SCROLL TO A WORD OF FAITH
-===================================== */
+========================================= */
 
 function openInvitation() {
-  if (!scene || openingInProgress) return;
+  if (!scene || openingInProgress || hasOpenedInvitation) return;
 
   openingInProgress = true;
+  hasOpenedInvitation = true;
 
-  const envelopePanel = document.getElementById("envelopePanel");
+  // Music is attempted as part of the user's tap.
+  startMusic();
 
-  // Start envelope opening animation.
   scene.classList.add("open");
 
   if (envelopePanel) {
     envelopePanel.classList.add("opened");
   }
 
-  // Wait for the envelope animation before scrolling.
+  // Let guests see the envelope animation before moving on.
   setTimeout(() => {
-    const faithSection = document.getElementById("faith");
+    const faithIndex = pages.findIndex(page => page.id === "faith");
 
-    if (faithSection) {
-      faithSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+    if (faithIndex !== -1) {
+      goToPage(faithIndex, { force: true });
     }
 
     openingInProgress = false;
-  }, 2500);
+  }, 1900);
 }
 
-/* =====================================
-   OPEN INVITATION BUTTON
-===================================== */
+function revealEnvelope() {
+  if (openingInProgress || hasOpenedInvitation) return;
 
-const openInvite = document.getElementById("openInvite");
+  startMusic();
+
+  const envelopeIndex = pages.findIndex(
+    page => page.id === "envelopePanel"
+  );
+
+  if (envelopeIndex !== -1) {
+    goToPage(envelopeIndex, { force: true });
+  }
+
+  // Allow the envelope to move into view before opening it.
+  setTimeout(openInvitation, 700);
+}
+
+const openInvite = $("#openInvite");
+const openArrow = $("#openArrow");
+const waxSeal = $("#waxSeal");
 
 if (openInvite) {
-  openInvite.addEventListener("click", () => {
-    if (openingInProgress) return;
-
-    const envelopePanel = document.getElementById("envelopePanel");
-
-    if (envelopePanel) {
-      envelopePanel.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-    }
-
-    setTimeout(openInvitation, 700);
-  });
+  openInvite.addEventListener("click", revealEnvelope);
 }
-
-/* =====================================
-   ENVELOPE ARROW AND WAX SEAL
-===================================== */
-
-const openArrow = document.getElementById("openArrow");
 
 if (openArrow) {
-  openArrow.addEventListener("click", openInvitation);
+  openArrow.addEventListener("click", revealEnvelope);
 }
-
-const waxSeal = document.getElementById("waxSeal");
 
 if (waxSeal) {
   waxSeal.addEventListener("click", openInvitation);
 }
 
-/* =====================================
-   WEDDING COUNTDOWN
-===================================== */
+/* =========================================
+   COUNTDOWN
+========================================= */
 
-const target = new Date("2026-12-10T17:00:00+05:30").getTime();
+// Event: 10 December 2026 at 5:00 PM IST.
+const targetDate = new Date(
+  "2026-12-10T17:00:00+05:30"
+).getTime();
 
 function countdown() {
-  const clockGrid = document.querySelector(".clock-grid");
+  const clockGrid = $(".clock-grid");
 
   if (!clockGrid) return;
 
-  const remaining = target - Date.now();
+  const remaining = targetDate - Date.now();
 
   if (remaining <= 0) {
     clockGrid.innerHTML =
@@ -123,11 +329,11 @@ function countdown() {
     seconds: Math.floor((remaining % 60000) / 1000)
   };
 
-  Object.entries(values).forEach(([key, number]) => {
+  Object.entries(values).forEach(([key, value]) => {
     const element = document.getElementById(key);
 
     if (element) {
-      element.textContent = String(number).padStart(
+      element.textContent = String(value).padStart(
         key === "days" ? 3 : 2,
         "0"
       );
@@ -138,9 +344,9 @@ function countdown() {
 countdown();
 setInterval(countdown, 1000);
 
-/* =====================================
+/* =========================================
    RSVP FORM
-===================================== */
+========================================= */
 
 function escapeHTML(value) {
   return value.replace(/[&<>"']/g, character => ({
@@ -152,14 +358,14 @@ function escapeHTML(value) {
   })[character]);
 }
 
-const rsvpForm = document.getElementById("rsvpForm");
+const rsvpForm = $("#rsvpForm");
 
 if (rsvpForm) {
   rsvpForm.addEventListener("submit", event => {
     event.preventDefault();
 
-    const name = document.getElementById("name").value.trim();
-    const thanksMessage = document.getElementById("thanksMessage");
+    const name = $("#name").value.trim();
+    const thanksMessage = $("#thanksMessage");
 
     if (thanksMessage) {
       thanksMessage.innerHTML =
@@ -168,254 +374,152 @@ if (rsvpForm) {
         "We look forward to celebrating<br>with you!";
     }
 
-    const thanks = document.getElementById("thanks");
+    const thanksIndex = pages.findIndex(page => page.id === "thanks");
 
-    if (thanks) {
-      thanks.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+    if (thanksIndex !== -1) {
+      goToPage(thanksIndex, { force: true });
     }
 
-    notify(`Thank you, ${name}! Your RSVP preview is ready.`);
+    notify(
+      `Thank you, ${name}! This RSVP is a preview and is not saved.`
+    );
 
-    event.currentTarget.reset();
+    rsvpForm.reset();
   });
 }
 
-/* =====================================
+/* =========================================
    REPLAY INVITATION
-===================================== */
+========================================= */
 
-const replay = document.getElementById("replay");
+const replay = $("#replay");
 
 if (replay) {
   replay.addEventListener("click", () => {
     openingInProgress = false;
+    hasOpenedInvitation = false;
+    navigationLocked = false;
 
     if (scene) {
       scene.classList.remove("open");
     }
 
-    const envelopePanel = document.getElementById("envelopePanel");
-
     if (envelopePanel) {
       envelopePanel.classList.remove("opened");
     }
 
-    const top = document.getElementById("top");
-
-    if (top) {
-      top.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    }
+    goToPage(0, { force: true });
 
     notify("Your invitation is ready to open again.");
   });
 }
 
-/* =====================================
-   A WORD OF FAITH & OUR FAMILIES
-   SCROLL ANIMATIONS
-===================================== */
+/* =========================================
+   FAMILY CARD ANIMATIONS
+========================================= */
 
-function initializeSectionAnimations() {
-  const sectionIds = ["faith", "families"];
+const familyCards = $$(".family-card");
+const familyHeart = $(".family-heart");
 
-  sectionIds.forEach(id => {
-    const section = document.getElementById(id);
+if ("IntersectionObserver" in window) {
+  const familyObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
 
-    if (!section) return;
-
-    section.style.opacity = "0";
-    section.style.transform = "translateY(25px)";
-    section.style.transition =
-      "opacity 1s ease, transform 1s ease";
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-
-        section.style.opacity = "1";
-        section.style.transform = "translateY(0)";
-
-        // Animate family cards one by one.
-        if (id === "families") {
-          const cards = section.querySelectorAll(".family-card");
-
-          cards.forEach((card, index) => {
-            card.style.opacity = "0";
-            card.style.transform = "translateY(20px)";
-            card.style.transition =
-              "opacity 0.8s ease, transform 0.8s ease";
-
-            setTimeout(() => {
-              card.style.opacity = "1";
-              card.style.transform = "translateY(0)";
-            }, 250 * index);
-          });
-
-          const heart = section.querySelector(".family-heart");
-
-          if (heart) {
-            heart.style.opacity = "0";
-            heart.style.transition = "opacity 1s ease";
-
-            setTimeout(() => {
-              heart.style.opacity = "1";
-            }, 350);
-          }
-        }
-
-        observer.unobserve(section);
+      familyCards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add("family-card-visible");
+        }, index * 250);
       });
-    }, {
-      threshold: 0.15
+
+      if (familyHeart) {
+        setTimeout(() => {
+          familyHeart.classList.add("family-heart-visible");
+        }, 350);
+      }
+
+      familyObserver.disconnect();
     });
+  }, { threshold: 0.2 });
 
-    observer.observe(section);
-  });
+  const familiesSection = $("#families");
+
+  if (familiesSection) {
+    familyObserver.observe(familiesSection);
+  }
+} else {
+  familyCards.forEach(card =>
+    card.classList.add("family-card-visible")
+  );
+
+  if (familyHeart) {
+    familyHeart.classList.add("family-heart-visible");
+  }
 }
 
-/* =====================================
-   WEDDING BACKGROUND MUSIC
-===================================== */
+/* =========================================
+   MOBILE SWIPE NAVIGATION
+========================================= */
 
-function initializeMusic() {
-  const music = document.getElementById("weddingMusic");
-  const button = document.getElementById("musicToggle");
+let touchStartX = 0;
+let touchStartY = 0;
 
-  if (!music || !button) return;
+document.addEventListener("touchstart", event => {
+  if (!event.changedTouches.length) return;
 
-  async function startMusic() {
-    try {
-      await music.play();
+  touchStartX = event.changedTouches[0].clientX;
+  touchStartY = event.changedTouches[0].clientY;
+}, { passive: true });
 
-      button.textContent = "♫ Pause Music";
-      button.classList.add("playing");
-    } catch (error) {
-      // Browser autoplay restrictions may block playback.
-      button.textContent = "♫ Tap to Play";
-    }
+document.addEventListener("touchend", event => {
+  if (!event.changedTouches.length) return;
+
+  // Avoid interfering with form fields and controls.
+  if (event.target.closest(
+    "input, select, textarea, button, a, form, .album-navigation"
+  )) {
+    return;
   }
 
-  // Try autoplay when the page loads.
-  startMusic();
+  const deltaX = event.changedTouches[0].clientX - touchStartX;
+  const deltaY = event.changedTouches[0].clientY - touchStartY;
 
-  // Retry when the visitor interacts with the page.
-  function playOnFirstInteraction() {
-    if (music.paused) {
-      startMusic();
-    }
-
-    document.removeEventListener("click", playOnFirstInteraction);
-    document.removeEventListener("touchstart", playOnFirstInteraction);
-    document.removeEventListener("keydown", playOnFirstInteraction);
-  }
-
-  document.addEventListener("click", playOnFirstInteraction);
-  document.addEventListener("touchstart", playOnFirstInteraction);
-  document.addEventListener("keydown", playOnFirstInteraction);
-
-  // Music play/pause button.
-  button.addEventListener("click", async () => {
-    if (music.paused) {
-      await startMusic();
+  // A horizontal swipe navigates pages.
+  if (
+    Math.abs(deltaX) > 75 &&
+    Math.abs(deltaX) > Math.abs(deltaY) * 1.3
+  ) {
+    if (deltaX < 0) {
+      nextPage();
     } else {
-      music.pause();
-
-      button.textContent = "♫ Tap to Play";
-      button.classList.remove("playing");
+      previousPage();
     }
-  });
-}
+  }
+}, { passive: true });
 
-/* =====================================
-   INITIALIZE ALL FEATURES
-===================================== */
+/* =========================================
+   KEYBOARD NAVIGATION
+========================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
-  initializeSectionAnimations();
-  initializeMusic();
+document.addEventListener("keydown", event => {
+  if (
+    event.target.matches("input, textarea, select") ||
+    event.target.isContentEditable
+  ) {
+    return;
+  }
+
+  if (event.key === "ArrowRight") {
+    nextPage();
+  } else if (event.key === "ArrowLeft") {
+    previousPage();
+  }
 });
 
-/* =====================================
-   MOBILE-FRIENDLY WEDDING MUSIC
-===================================== */
+/* =========================================
+   INITIAL STATE
+========================================= */
 
-function initializeMusic() {
-  const music = document.getElementById("weddingMusic");
-  const button = document.getElementById("musicToggle");
-
-  if (!music) return;
-
-  async function startMusic() {
-    try {
-      await music.play();
-
-      if (button) {
-        button.textContent = "♫ Pause Music";
-        button.classList.add("playing");
-      }
-    } catch (error) {
-      console.log("Music playback was blocked:", error);
-
-      if (button) {
-        button.textContent = "♫ Tap to Play";
-      }
-    }
-  }
-
-  function pauseMusic() {
-    music.pause();
-
-    if (button) {
-      button.textContent = "♫ Play Music";
-      button.classList.remove("playing");
-    }
-  }
-
-  // Mobile browsers need a user gesture.
-  // Start music directly from the visitor's tap.
-  ["openInvite", "openArrow", "waxSeal"].forEach(id => {
-    const element = document.getElementById(id);
-
-    if (element) {
-      element.addEventListener("click", () => {
-        if (music.paused) {
-          startMusic();
-        }
-      });
-    }
-  });
-
-  // Music button.
-  if (button) {
-    button.addEventListener("click", () => {
-      if (music.paused) {
-        startMusic();
-      } else {
-        pauseMusic();
-      }
-    });
-  }
-
-  // Keep the button label synchronized.
-  music.addEventListener("play", () => {
-    if (button) {
-      button.textContent = "♫ Pause Music";
-      button.classList.add("playing");
-    }
-  });
-
-  music.addEventListener("pause", () => {
-    if (button) {
-      button.textContent = "♫ Play Music";
-      button.classList.remove("playing");
-    }
-  });
-}
-
-document.addEventListener("DOMContentLoaded", initializeMusic);
+updateNavigation(0);
+pages.forEach(page => page.classList.add("page-ready"));
+     
