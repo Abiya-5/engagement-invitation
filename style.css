@@ -1185,4 +1185,31 @@ body {
     transition: none;
     transform: none;
   }
+
+/* New circular L&S logo */
+.monogram.wreath img {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  animation: logoFloat 4s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Make the logo fit mobile screens */
+@media (max-width: 600px) {
+  .monogram.wreath img {
+    max-width: 230px;
+  }
 }
