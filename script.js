@@ -101,7 +101,7 @@ if (waxSeal) {
    WEDDING COUNTDOWN
 ===================================== */
 
-const target = new Date("2026-12-26T17:00:00+05:30").getTime();
+const target = new Date("2026-12-10T17:00:00+05:30").getTime();
 
 function countdown() {
   const clockGrid = document.querySelector(".clock-grid");
