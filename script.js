@@ -340,3 +340,82 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeSectionAnimations();
   initializeMusic();
 });
+
+/* =====================================
+   MOBILE-FRIENDLY WEDDING MUSIC
+===================================== */
+
+function initializeMusic() {
+  const music = document.getElementById("weddingMusic");
+  const button = document.getElementById("musicToggle");
+
+  if (!music) return;
+
+  async function startMusic() {
+    try {
+      await music.play();
+
+      if (button) {
+        button.textContent = "♫ Pause Music";
+        button.classList.add("playing");
+      }
+    } catch (error) {
+      console.log("Music playback was blocked:", error);
+
+      if (button) {
+        button.textContent = "♫ Tap to Play";
+      }
+    }
+  }
+
+  function pauseMusic() {
+    music.pause();
+
+    if (button) {
+      button.textContent = "♫ Play Music";
+      button.classList.remove("playing");
+    }
+  }
+
+  // Mobile browsers need a user gesture.
+  // Start music directly from the visitor's tap.
+  ["openInvite", "openArrow", "waxSeal"].forEach(id => {
+    const element = document.getElementById(id);
+
+    if (element) {
+      element.addEventListener("click", () => {
+        if (music.paused) {
+          startMusic();
+        }
+      });
+    }
+  });
+
+  // Music button.
+  if (button) {
+    button.addEventListener("click", () => {
+      if (music.paused) {
+        startMusic();
+      } else {
+        pauseMusic();
+      }
+    });
+  }
+
+  // Keep the button label synchronized.
+  music.addEventListener("play", () => {
+    if (button) {
+      button.textContent = "♫ Pause Music";
+      button.classList.add("playing");
+    }
+  });
+
+  music.addEventListener("pause", () => {
+    if (button) {
+      button.textContent = "♫ Play Music";
+      button.classList.remove("playing");
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initializeMusic);
