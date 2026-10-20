@@ -949,3 +949,240 @@ footer a {
     font-size: 27px;
   }
 }
+
+/* =========================================
+   FULL-SCREEN WEDDING ALBUM
+========================================= */
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.site-shell {
+  overflow: clip;
+}
+
+/* Every invitation section becomes an album page. */
+.site-shell > section.album-page {
+  min-height: 100svh;
+  min-height: 100vh;
+  position: relative;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+  isolation: isolate;
+  transform-origin: center center;
+  backface-visibility: hidden;
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s ease,
+    filter 0.65s ease;
+}
+
+/* Soft entrance animation. */
+.site-shell > section.album-page.page-ready:not(.page-visible) {
+  opacity: 0.78;
+  transform: translateY(18px) scale(0.99);
+}
+
+.site-shell > section.album-page.page-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* Faith and family sections need the same page layout. */
+#faith.album-page,
+#families.album-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100svh;
+  padding: 65px 25px;
+}
+
+/* Avoid cropping longer content on short screens. */
+#families.album-page {
+  justify-content: center;
+}
+
+#families .family-card {
+  transition:
+    opacity 0.75s ease,
+    transform 0.75s ease;
+}
+
+#families .family-card:not(.family-card-visible) {
+  opacity: 0;
+  transform: translateY(22px);
+}
+
+#families .family-card.family-card-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#families .family-heart {
+  transition:
+    opacity 0.75s ease,
+    transform 0.75s ease;
+}
+
+#families .family-heart:not(.family-heart-visible) {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+#families .family-heart.family-heart-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Fixed page controls. */
+.album-navigation {
+  position: fixed;
+  z-index: 30;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 8px 14px;
+  border: 1px solid #c9bea6;
+  border-radius: 40px;
+  background: rgba(247, 243, 233, 0.94);
+  color: #454735;
+  box-shadow: 0 5px 22px rgba(52, 59, 43, 0.17);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: "Montserrat", sans-serif;
+}
+
+.album-navigation button {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #c9bea6;
+  border-radius: 50%;
+  background: #f7f3e9;
+  color: #535a3c;
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.album-navigation button:hover:not(:disabled) {
+  background: #e9e3d4;
+  transform: scale(1.06);
+}
+
+.album-navigation button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.album-page-count {
+  min-width: 58px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+/* Keep navigation from covering important content. */
+#rsvp.album-page,
+#venue.album-page,
+#families.album-page,
+#thanks.album-page {
+  padding-bottom: 95px;
+}
+
+/* Mobile adjustments. */
+@media (max-width: 600px) {
+  .site-shell {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .site-shell > section.album-page {
+    padding-bottom: 88px;
+  }
+
+  #faith.album-page {
+    padding: 60px 22px 95px;
+  }
+
+  #faith .faith-message {
+    font-size: 20px;
+    line-height: 1.6;
+  }
+
+  #families.album-page {
+    padding: 55px 12px 100px;
+  }
+
+  #families .families-heading {
+    margin-bottom: 28px;
+  }
+
+  #families .family-card {
+    min-height: 0;
+    height: 100%;
+    padding: 28px 6px;
+  }
+
+  #families .parent-names {
+    overflow-wrap: anywhere;
+  }
+
+  .album-navigation {
+    gap: 12px;
+    padding: 6px 10px;
+  }
+
+  .album-navigation button {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* On very short screens, let guests scroll within the page. */
+@media (max-height: 680px) {
+  .site-shell > section.album-page {
+    min-height: 100svh;
+    height: auto;
+  }
+
+  #families.album-page,
+  #rsvp.album-page {
+    justify-content: flex-start;
+  }
+}
+
+/* Accessibility: reduce animation when requested. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+
+  .site-shell > section.album-page,
+  #families .family-card,
+  #families .family-heart {
+    transition: none;
+    transform: none;
+  }
+}
