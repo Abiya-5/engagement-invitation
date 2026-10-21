@@ -30,8 +30,8 @@ const pageIds = [
   "faith",
   "families",
   "invitation",
-  "countdown",
   "venue",
+  "countdown",
   "rsvp",
   "thanks"
 ];
@@ -347,7 +347,7 @@ setInterval(countdown, 1000);
 /* =========================================
    RSVP FORM
 ========================================= */
-
+const RSVP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfgoMH_oHsjlzaWJN1DebKMpj3nbGNe4OZCz-mKojPPu2iaH440_g4qiyLJQCsyPNA/exec";
 function escapeHTML(value) {
   return value.replace(/[&<>"']/g, character => ({
     "&": "&amp;",
@@ -361,30 +361,69 @@ function escapeHTML(value) {
 const rsvpForm = $("#rsvpForm");
 
 if (rsvpForm) {
-  rsvpForm.addEventListener("submit", event => {
+  rsvpForm.addEventListener("submit", async event => {
     event.preventDefault();
 
     const name = $("#name").value.trim();
+    const phone = $("#phone").value.trim();
+    const attendance = $("#attendance").value;
+    const guests = $("#guests").value;
     const thanksMessage = $("#thanksMessage");
+    const submitButton = $('button[type="submit"]', rsvpForm);
 
-    if (thanksMessage) {
-      thanksMessage.innerHTML =
-        `Thank you, ${escapeHTML(name)}!<br>` +
-        "Your response has been recorded.<br>" +
-        "We look forward to celebrating<br>with you!";
+    if (!name || !phone || !attendance || !guests) {
+      notify("Please complete all the RSVP fields.");
+      return;
     }
 
-    const thanksIndex = pages.findIndex(page => page.id === "thanks");
-
-    if (thanksIndex !== -1) {
-      goToPage(thanksIndex, { force: true });
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Submitting...";
     }
 
-    notify(
-      `Thank you, ${name}! This RSVP is a preview and is not saved.`
-    );
+    const formData = new URLSearchParams({
+      name: name,
+      phone: phone,
+      attendance: attendance,
+      guests: guests
+    });
 
-    rsvpForm.reset();
+    try {
+      await fetch(RSVP_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: formData
+      });
+
+      if (thanksMessage) {
+        thanksMessage.innerHTML =
+          `Thank you, ${escapeHTML(name)}!<br>` +
+          "Thank you for sharing your response.<br>" +
+          "We look forward to celebrating<br>with you!";
+      }
+
+      const thanksIndex = pages.findIndex(
+        page => page.id === "thanks"
+      );
+
+      if (thanksIndex !== -1) {
+        goToPage(thanksIndex, { force: true });
+      }
+
+      notify("Thank you! Please check Google Sheets to confirm your RSVP was saved.");
+
+      rsvpForm.reset();
+
+    } catch (error) {
+      console.error("RSVP submission error:", error);
+      notify("Unable to submit your RSVP. Please try again.");
+
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Submit RSVP";
+      }
+    }
   });
 }
 
@@ -516,10 +555,10 @@ document.addEventListener("keydown", event => {
   }
 });
 
+
 /* =========================================
    INITIAL STATE
 ========================================= */
 
 updateNavigation(0);
 pages.forEach(page => page.classList.add("page-ready"));
-     
