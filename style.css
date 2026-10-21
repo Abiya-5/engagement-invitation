@@ -62,7 +62,7 @@ body {
     top: 12px;
     display: flex;
     justify-content: space-between;
-    font: 600 11px Arial, sans-serif;
+    font: 600 50px Arial, sans-serif;
     color: #1e241b;
     z-index: 5
 }
@@ -1185,6 +1185,7 @@ body {
     transition: none;
     transform: none;
   }
+}
 
 /* New circular L&S logo */
 .monogram.wreath img {
@@ -1211,5 +1212,31 @@ body {
 @media (max-width: 600px) {
   .monogram.wreath img {
     max-width: 230px;
+  }
+}
+
+/* Opening page font: Cormorant Garamond */
+.opening > .spaced {
+  font-family: "Cormorant Garamond", serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: 3px !important;
+}
+
+.opening .open-label {
+  font-family: "Cormorant Garamond", serif !important;
+  font-size: 18px !important;
+  font-weight: 300 !important;
+  letter-spacing: 1px !important;
+  font-style: normal !important;
+}
+
+@media (max-width: 600px) {
+  .opening > .spaced {
+    font-size: 15px !important;
+  }
+
+  .opening .open-label {
+    font-size: 28px !important;
   }
 }
